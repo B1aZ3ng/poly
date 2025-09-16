@@ -1,15 +1,15 @@
 ''' Tile types '''
-class Tile:
-    def __init__(self,type: str,resource = None):
-        self.type = None
-        self.resource = resource
-        self.building = None
-        self.troop = None
-        self.city = None
 
-class Field (Tile):
+type()
+class Terrain:
+    def __init__(self,type_):
+        self.type = type_
+        self.canResource = None
+        self.canBuild = None
+
+class Field (Terrain):
     def __init__(self):
-        super().__init__(type = "Field")
+        super().__init__("Field")
 
 
 ''' Resources on Tile '''

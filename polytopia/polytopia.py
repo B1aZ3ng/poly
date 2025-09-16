@@ -6,7 +6,15 @@ from buildings import City
 from players import Player
 GRID_SIZE = 8
 
-    
+class Tile:
+    def __init__(self,terrain: Terrain,resource = None):
+        self.terrain = terrain
+        self.resource = resource
+        self.building = None
+        self.troop = None
+        self.city = None
+        self.owner = None
+
 class PolytopiaEnv(gym.Env):
     def __init__(self):
         super(PolytopiaEnv, self).__init__()
@@ -21,6 +29,7 @@ class PolytopiaEnv(gym.Env):
     def init_map_test(self): #temp
         self.grid[1][1].building =  City(self.players[0])
         self.grid[GRID_SIZE-2][GRID_SIZE-2].building = City(self.players[1])
+        self.grid
     
     def render(self):
         for y in range(GRID_SIZE):
