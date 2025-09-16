@@ -1,10 +1,11 @@
 import random
 import gymnasium as gym
-from terrain import *
+
 from gymnasium import spaces
-from buildings import City
-from players import Player
-GRID_SIZE = 8
+from polytopia.terrain import *
+from polytopia.buildings import City
+from polytopia.players import Player
+
 
 class Tile:
     def __init__(self,terrain: Terrain,resource = None):
@@ -12,31 +13,34 @@ class Tile:
         self.resource = resource
         self.building = None
         self.troop = None
-        self.city = None
         self.owner = None
+        self.road = None #Either "Road", "City", or  "Algae" (if i bother to add special troops)
+    
 
 class PolytopiaEnv(gym.Env):
-    def __init__(self):
-        super(PolytopiaEnv, self).__init__()
-        self.grid = [[Field() for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+    
+    def __init__(self,GRID_SIZE = 8):
+        self.GRID_SIZE = GRID_SIZE
+        super(PolytopiaEnv, self).__init__() #initialises the grid
+        self.grid = [[Tile(Field()) for _ in range(self.GRID_SIZE)] for _ in range(self.GRID_SIZE)]
         self.players = [Player("P1"),Player("P2")]
         self.current_player = 0
-        
-        self.action_space = spaces.Discrete(GRID_SIZE * GRID_SIZE * 2)
-        self.observation_space = spaces.Box(low=0, high=3, shape=(GRID_SIZE, GRID_SIZE), dtype=int)
+        self.action_space = spaces.Discrete(self.GRID_SIZE * self.GRID_SIZE * 2)
+        self.observation_space = spaces.Box(low=0, high=3, shape=(self.GRID_SIZE, self.GRID_SIZE), dtype=int)
 
         self.init_map_test() #temp
+        
     def init_map_test(self): #temp
         self.grid[1][1].building =  City(self.players[0])
-        self.grid[GRID_SIZE-2][GRID_SIZE-2].building = City(self.players[1])
-        self.grid
+        self.grid[self.GRID_SIZE-2][self.GRID_SIZE-2].building = City(self.players[1])
+        #self.grid
     
     def render(self):
-        for y in range(GRID_SIZE):
+        for y in range(self.GRID_SIZE):
             row = ""
-            for x in range(GRID_SIZE):
+            for x in range(self.GRID_SIZE):
                 tile = self.grid[x][y]
-                if tile.building:
+                if tile.building.type == "City":
                     row += "C1 " if tile.building.owner == self.players[0] else "C2 "
                 elif tile.troop:
                     row += "W1 " if tile.troop.owner == self.players[0] else "W2 "
@@ -44,3 +48,6 @@ class PolytopiaEnv(gym.Env):
                     row += ".  "
             print(row)
         print("\n")
+
+    def inGrid(self,x,y):# i will definately forget to put this where i need it
+        return x < 0 or x >= self.GRID_SIZE or y < 0 or y >= self.GRID_SIZE
