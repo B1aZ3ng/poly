@@ -47,16 +47,19 @@ class Unit:
             for i in range (len(queue)):
                 x,y,steps = queue.popleft()
                 for xC,yC in directions: #change in x and y
-                    if self.env.inGrid(x+xC,y+yC): # check if its in the fking grid
-                        stepsLeft = self.canMoveTo(x,y,x+xC,y+yC,steps) 
-                        if int(stepsLeft) > 0: # will return None if cant move to, also round down cuz poly movement is weird
-                            # Only if >0 becuase if 0, dont need to add to queue
-                            queue.append((x+xC,y+yC,stepsLeft))
+                    xN,yN = x+xC, y+yC
+                    if self.env.inGrid(xN,yN): # check if its in the fking grid
+                        stepsLeft = self.canStepTo(x,y,xN,yN,steps) 
+                        if not stepsLeft: #check it isnt None
+                            
+                            if int(stepsLeft) > 0: # will return None if cant move to, also round down cuz poly movement is weird
+                                # Only if >0 becuase if 0, dont need to add to queue
+                                queue.append((xN,yN,stepsLeft))
 
-                        if int(stepsLeft) >= 0:
-                            #>= 0 becuase if it is 0, it still counts
-                            if (x,y) not in moves: #add to moves if not in
-                                moves.append(x,y)
+                            if int(stepsLeft) >= 0:
+                                #>= 0 becuase if it is 0, it still counts
+                                if (xN,yN) not in moves: #add to moves if not in
+                                    moves.append((xN,yN))
         return moves    
     def canAttack(owner): #peace treaties and stuff
         pass
@@ -83,10 +86,6 @@ class Unit:
                   return True
         return False  
     
-   
-    
-
-
 
 '''
 Land Units:
@@ -111,7 +110,7 @@ class Land_Unit(Unit):
 
         endInZoneCtrl = self.inZoneOfControl(xTo,yTo) 
         
-        isRoad = startTile.road and endTile.road # check if roads connect
+        isRoad = startTile.isRoad() and endTile.isRoad() # check if roads connect
         
         match endTile.terrain.type:
             case "Field":
@@ -125,27 +124,14 @@ class Land_Unit(Unit):
                 return SyntaxError("I forgot to add type{endTile.terrain.type} to movement for {self.type}")
 
 
-        
-
-        
-
-                
-
-
-
-
-        
-            
-                
-        
-        
-        
 class Warrior(Land_Unit):
-    def __init__(self):
+    def __init__(self,owner,env):
         return super().__init__(
+            owner = owner,
             health = 10,
             attack = 2,
             defense = 2,
             movement = 1,
-            atk_range = 1
+            atk_range = 1,
+            env = env
         )
