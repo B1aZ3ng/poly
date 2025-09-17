@@ -1,7 +1,7 @@
 from collections import deque
 '''
 NOTE: movement: https://www.youtube.com/watch?v=gJOZZbipsTA
-TODO: currently using tile.troop.owner != self.owner to check for if attackable
+TODO: currently using tile.unit.owner != self.owner to check for if attackable
 Units
 Information	
 Units, List of Units, Unit Skills, Super Unit, Disband
@@ -25,9 +25,10 @@ global directions
 
 directions = (-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)
 class Unit:
-    def __init__(self,owner,health,attack,defense,movement,atk_range,env):
+    def __init__(self,coord,owner,health,attack,defense,movement,atk_range,env):
         self.type = None
         self.health = health
+        self.max_health = health
         self.attack = attack
         self.defense = defense
         self.movement = movement
@@ -35,12 +36,16 @@ class Unit:
         self.moves = 0
         self.owner = owner
         self.env = env
-    def endTurn(): pass #resets the character after turn ends
+        self.moved = True
+        self.x,self.y = coord
+    
+    
+    def endTurn(self):  #resets the character after turn ends
+        self.moved = False
 
-
-    def getMoves(self,xFrom,yFrom): 
+    def getMoves(self): 
         steps = self.movement
-        queue = deque([(xFrom,yFrom,steps)])
+        queue = deque([(self.x,self.y,steps)])
         # bfs function
         moves = [] #list for all possible moves
         for _ in range (steps):
@@ -48,7 +53,7 @@ class Unit:
                 x,y,steps = queue.popleft()
                 for xC,yC in directions: #change in x and y
                     xN,yN = x+xC, y+yC
-                    if self.env.inGrid(xN,yN): # check if its in the fking grid
+                    if self.env.inBounds(xN,yN): # check if its in the fking grid
                         stepsLeft = self.canStepTo(x,y,xN,yN,steps) 
                         if not stepsLeft: #check it isnt None
                             
@@ -60,29 +65,45 @@ class Unit:
                                 #>= 0 becuase if it is 0, it still counts
                                 if (xN,yN) not in moves: #add to moves if not in
                                     moves.append((xN,yN))
-        return moves    
-    def canAttack(owner): #peace treaties and stuff
-        pass
+        return moves  
+    
 
-    def getAttack(self,x,y):
+      
+    def canMove(self,xTo,yTo):
+        moves  = self.getMoves()
+        return (xTo,yTo) in moves and not self.moved #if move is valid and unit hasnt moved
+    
+    
+    def getAttacks(self,x,y):
         attacks = [] #list for all possible attack 
         for xC in range (-self.range,self.range+1):
             for yC in range (-self.range,self.range+1):
-                tile = self.env.grid[x+xC][y+yC]
-                if tile.troop and tile.troop.owner != self.owner:
-                    if tile.troop.type == "Cloaker":#checks for cloakers
-                        if tile.troop.seen == True: #if the cloakers seen than can attack
+                tile = self.env.board[x+xC][y+yC]
+                if tile.unit and tile.unit.owner != self.owner:
+                    if tile.unit.type == "Cloaker":#checks for cloakers
+                        if tile.unit.seen == True: #if the cloakers seen than can attack
                             attacks.append((x+xC,y+yC))
                     else: #not cloaker
                         attacks.append((x+xC,y+yC))
+        return attacks
 
+    def canAttack(self,xTo,yTo): #peace treaties and stuff
+        moves  = self.getAttacks(self.x,self.y)
+        return (xTo,yTo) in moves
+
+    def attack(self,xTo,yTo):
+        if self.canAttack(xTo,yTo):
+            enemy = self.env.board[xTo][yTo].unit
+            
+        else:
+            return SyntaxError("attacking smth that cant be attacked")
                         
     
 
-    def inZoneOfControl(self,x,y):# searches adjacent boxes to see theres a troop
+    def inZoneOfControl(self,x,y):# searches adjacent boxes to see theres a unit
         for xC,yC in directions:
-            if self.env.inGrid(x+xC,y+yC) and self.env.grid[x+xC][y+yC].troop: 
-                if self.env.grid[x+xC][y+yC].troop.owner != self.owner: # if owner is different
+            if self.env.inBounds(x+xC,y+yC) and self.env.board[x+xC][y+yC].unit: 
+                if self.env.board[x+xC][y+yC].unit.owner != self.owner: # if owner is different
                   return True
         return False  
     
@@ -95,17 +116,16 @@ TODO: Warrior, Archer, Defender, Rider, Mind Bender, Swordsman, Catapult, Cloak,
 
 class Land_Unit(Unit):
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    # no init statement hopefully
 
     #checks if you can move each step and 
     def canStepTo(self,xFrom,yFrom,xTo,yTo,steps):
         if steps == 0:
             return None #just edge case if i forget to do stuff
-        startTile = self.env.grid[xFrom][yFrom]
-        endTile = self.env.grid[xTo][yTo]
+        startTile = self.env.board[xFrom][yFrom]
+        endTile = self.env.board[xTo][yTo]
         
-        if endTile.troop: #checks if there alr is a troop
+        if endTile.unit: #checks if there alr is a unit
             return None 
 
         endInZoneCtrl = self.inZoneOfControl(xTo,yTo) 
@@ -125,7 +145,7 @@ class Land_Unit(Unit):
 
 
 class Warrior(Land_Unit):
-    def __init__(self,owner,env):
+    def __init__(self,coord,owner,env):
         return super().__init__(
             owner = owner,
             health = 10,
@@ -133,5 +153,6 @@ class Warrior(Land_Unit):
             defense = 2,
             movement = 1,
             atk_range = 1,
-            env = env
+            env = env,
+            coord = coord
         )

@@ -1,5 +1,6 @@
+import time
 import random
-from polytopia.polytopia import PolytopiaEnv
+from polytopia import PolytopiaEnv
 
 # Initialize environment
 env = PolytopiaEnv()
@@ -14,4 +15,7 @@ env.render()
 #     obs, reward, done, truncated, info = env.step(action)
 #     print(f"Step {step+1}: Action={action}, Reward={reward}")
 #     env.render()
-print (env.grid[1][1].troop.getMoves(1,1))
+t = time.time()
+print (env.board[1][1].unit.getMoves())
+print (env.board[1][1].unit.getAttacks(1,1))
+print (time.time()-t)

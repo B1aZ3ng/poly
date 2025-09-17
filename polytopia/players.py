@@ -3,4 +3,5 @@ class Player:
         self.username = username
         self.stars = 0
         self.points = 0
+    
         
