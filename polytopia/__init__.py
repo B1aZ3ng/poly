@@ -6,7 +6,7 @@ from polytopia.terrain import *
 from polytopia.buildings import City
 from polytopia.players import Player
 from polytopia.units import *
-
+from polytopia.actions import Action
 
 class Tile:
     def __init__(self,terrain: Terrain,resource = None):
@@ -18,6 +18,11 @@ class Tile:
         self.road = None #Either "Road", "Bridge","City", or  "Algae" (if i bother to add special units)
     def isRoad(self): #the function is a bit weird REMEMBER TO USE IT INSTEAD OF getting .road
         return self.road or (self.building and self.building.type == "City" )
+    def isUnit(self):
+        if self.unit:
+            return self.unit.type != "Cloaker" or self.unit.seen
+        else:
+            return False
 
 class PolytopiaEnv(gym.Env):
     
@@ -29,7 +34,7 @@ class PolytopiaEnv(gym.Env):
         self.current_player = 0
         self.action_space = spaces.Discrete(self.BOARD_SIZE * self.BOARD_SIZE * 2)
         self.observation_space = spaces.Box(low=0, high=3, shape=(self.BOARD_SIZE, self.BOARD_SIZE), dtype=int)
-
+        self.actions = Action(self)
         self.init_map_test() #temp
     
     
