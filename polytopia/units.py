@@ -36,10 +36,18 @@ class Unit:
         self.owner = owner
         self.env = env
         self.moved = True
-        self.defense_bonus = 1
+        self.attacked = True
+
     
     def endTurn(self):  #resets the character after turn ends
         self.moved = False
+        self.attacked = False
+
+
+    def move(self):
+        self.moved = True
+    def attack(self):
+        self.attacked = True
 
     # def getMoves(self): 
     #     steps = self.movement
@@ -146,3 +154,4 @@ class Warrior(LandUnit,MeleeUnit):
             atk_range = 1,
             env = env
         )
+
