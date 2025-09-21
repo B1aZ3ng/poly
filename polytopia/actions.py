@@ -1,8 +1,9 @@
 '''
 TODO: using self.env.board[x+xC][y+yC].unit.owner != self.owner to check 
 '''
-from polytopia.units import Unit
+from polytopia.units import *
 from collections import deque
+
 DIRECTIONS = (-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)
 class Action():
     def __init__(self,env):
@@ -12,16 +13,25 @@ class Action():
     ATTACK
     '''
     def attack (self,xFrom,yFrom,xTo,yTo):
-        attacker = self.env.board[xFrom,yFrom]
-        defender = self.env.unit[xTo,yTo]
-        attackForce = attacker.attack * (attacker.health / attacker.maxHealth)
-        defenseForce = defender.defense * (defender.health / defender.maxHealth) * defenseBonus 
-        totalDamage = attackForce + defenseForce 
-        attackResult = round((attackForce / totalDamage) * attacker.attack * 4.5) 
-        defenseResult = round((defenseForce / totalDamage) * defender.defense * 4.5)
-        #TODO
+        if self.canAttack(xFrom,yFrom,xTo,yTo): 
+            attacker = self.env.board[xFrom,yFrom]
+            defender = self.env.unit[xTo,yTo]
 
-        
+            attackForce = attacker.attack * (attacker.health / attacker.maxHealth)
+            defenseForce = defender.defense * (defender.health / defender.maxHealth) #* defenseBonus TODO
+            totalDamage = attackForce + defenseForce 
+            attackResult = round((attackForce / totalDamage) * attacker.attack * 4.5) 
+            defenseResult = round((defenseForce / totalDamage) * defender.defense * 4.5)
+            
+            defender.health -= defenseResult
+            if defender.health == 0:
+                self.env.board[xTo,yTo].unit = None
+                if self.canMove(xFrom,yFrom,xTo,yTo) and issubclass(attacker,MeleeUnit): 
+                    self.move(xFrom,yFrom,xTo,yTo)
+            else:
+                if self.canAttack(xTo,yTo,xFrom,yFrom):
+                    attacker.health -= attackResult
+
     def getAttacks(self,x,y):
         unit = self.env.board[x][y].unit
         attacks = [] #list for all possible attack 
@@ -39,7 +49,11 @@ class Action():
     '''
     MOVEMENT
     '''
-    
+    def move(self,xFrom,yFrom,xTo,yTo):
+        if self.canMove(xFrom,yFrom,xTo,yTo):
+            #TODO
+            pass
+
     def getMoves(self,x,y): 
         unit = self.env.board[x][y].unit
         steps = unit.movement
@@ -68,6 +82,7 @@ class Action():
                                 if (xN,yN) not in moves: #add to moves if not in
                                     moves.append((xN,yN))
         return moves  
+    
     def canMove (self,xFrom,yFrom,xTo,yTo):
         return (xTo,yTo) in self.getMoves(xFrom,yFrom)
 
@@ -76,5 +91,4 @@ class Action():
             if self.env.inBounds(x+xC,y+yC) and self.env.board[x+xC][y+yC].isUnit(): 
                 if self.env.board[x+xC][y+yC].unit.owner != unit.owner: # if owner is different
                     return True
-        return False
-    
+        return False'

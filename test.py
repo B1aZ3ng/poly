@@ -18,4 +18,5 @@ env.render()
 t = time.time()
 print (env.actions.getMoves(1,1))
 print (env.actions.getAttacks(1,1))
+
 print (time.time()-t)

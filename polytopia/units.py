@@ -98,7 +98,7 @@ DONE:
 TODO: Warrior, Archer, Defender, Rider, Mind Bender, Swordsman, Catapult, Cloak, Dagger, Knight, Giant
 '''
 
-class Land_Unit(Unit):
+class LandUnit(Unit):
     
     # no init statement hopefully
 
@@ -129,13 +129,13 @@ class Land_Unit(Unit):
             case _: # returns error if i forget smth
                 return SyntaxError("I forgot to add type{endTile.terrain.type} to movement for {self.type}")
 
-class Proj_Unit(Unit): #shoots projectiles
+class ProjUnit(Unit): #shoots projectiles
     pass
-class Melee_Unit(Unit):
+class MeleeUnit(Unit):
     pass
 
 
-class Warrior(Land_Unit,Proj_Unit):
+class Warrior(LandUnit,MeleeUnit):
     def __init__(self,coord,owner,env):
         return super().__init__(
             owner = owner,
