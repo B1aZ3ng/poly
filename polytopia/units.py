@@ -35,13 +35,13 @@ class Unit:
         self.moves = 0
         self.owner = owner
         self.env = env
-        self.moved = True
-        self.attacked = True
+        self.canMove = False
+        self.canAttack = False
 
     
     def endTurn(self):  #resets the character after turn ends
-        self.moved = False
-        self.attacked = False
+        self.moved = True
+        self.attacked = True
 
 
     def move(self):

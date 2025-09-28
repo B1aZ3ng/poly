@@ -24,6 +24,9 @@ class Action():
             defenseResult = round((defenseForce / totalDamage) * defender.defense * 4.5)
             
             defender.health -= defenseResult
+            attacker.canMove = False
+            attacker.canAttack = False
+            
             if defender.health <= 0:
                 self.env.board[xTo][yTo].unit = None
                 if self.canMove(xFrom,yFrom,xTo,yTo) and issubclass(MeleeUnit,attacker.__class__): 
@@ -33,6 +36,7 @@ class Action():
                     attacker.health -= attackResult
                 if attacker.health <= 0:
                     self.env.board[xFrom,yFrom].unit = None
+            
 
     def getAttacks(self,x,y):
         unit = self.env.board[x][y].unit

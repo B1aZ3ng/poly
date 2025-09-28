@@ -19,6 +19,7 @@ class Tile:
     def isRoad(self): #the function is a bit weird REMEMBER TO USE IT INSTEAD OF getting .road
         return self.road or (self.building and self.building.type == "City" )
 
+
 class PolytopiaEnv(gym.Env):
     
     def __init__(self,GRID_SIZE = 8):
@@ -59,3 +60,5 @@ class PolytopiaEnv(gym.Env):
 
     def inGrid(self,x,y):# i will definately forget to put this where i need it
         return not (x < 0 or x >= self.GRID_SIZE or y < 0 or y >= self.GRID_SIZE)
+
+    
